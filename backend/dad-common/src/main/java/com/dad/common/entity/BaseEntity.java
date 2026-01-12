@@ -18,9 +18,9 @@ public class BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Creator ID
+     * Creator ID (not in database, used in memory)
      */
-    @TableField(fill = FieldFill.INSERT)
+    @TableField(fill = FieldFill.INSERT, exist = false)
     private Long createdBy;
 
     /**
@@ -31,9 +31,9 @@ public class BaseEntity implements Serializable {
     private LocalDateTime createdAt;
 
     /**
-     * Updater ID
+     * Updater ID (not in database, used in memory)
      */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(fill = FieldFill.INSERT_UPDATE, exist = false)
     private Long updatedBy;
 
     /**
