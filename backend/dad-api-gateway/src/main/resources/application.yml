@@ -1,0 +1,107 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: dad-api-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: dad
+        group: DEFAULT_GROUP
+      config:
+        server-addr: localhost:8848
+        namespace: dad
+        group: DEFAULT_GROUP
+        file-extension: yml
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        # Dashboard Service
+        - id: dad-service-dashboard
+          uri: lb://dad-service-dashboard
+          predicates:
+            - Path=/dashboard/**
+          filters:
+            - StripPrefix=1
+
+        # Data Service
+        - id: dad-service-data
+          uri: lb://dad-service-data
+          predicates:
+            - Path=/data/**
+          filters:
+            - StripPrefix=1
+
+        # Task Service
+        - id: dad-service-task
+          uri: lb://dad-service-task
+          predicates:
+            - Path=/task/**
+          filters:
+            - StripPrefix=1
+
+        # AI Service
+        - id: dad-service-ai
+          uri: lb://dad-service-ai
+          predicates:
+            - Path=/ai/**
+          filters:
+            - StripPrefix=1
+
+        # Resource Service
+        - id: dad-service-resource
+          uri: lb://dad-service-resource
+          predicates:
+            - Path=/resource/**
+          filters:
+            - StripPrefix=1
+
+        # User Service
+        - id: dad-service-user
+          uri: lb://dad-service-user
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
+
+        # Notification Service
+        - id: dad-service-notification
+          uri: lb://dad-service-notification
+          predicates:
+            - Path=/notification/**
+          filters:
+            - StripPrefix=1
+
+  # Redis Configuration
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    database: 0
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+
+# Management Endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    com.dad: debug
+    org.springframework.cloud.gateway: debug
