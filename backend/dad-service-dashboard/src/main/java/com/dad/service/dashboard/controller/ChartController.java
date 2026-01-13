@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -123,5 +124,25 @@ public class ChartController {
     public Result<Map<String, Object>> getData(@PathVariable Long id) {
         Map<String, Object> data = chartService.getChartData(id);
         return Result.success(data);
+    }
+
+    /**
+     * Batch get chart data
+     */
+    @PostMapping("/batch/data")
+    @ApiOperation("Batch get chart data")
+    public Result<Map<Long, Map<String, Object>>> getBatchChartData(
+            @RequestBody List<Long> chartIds) {
+
+        if (chartIds == null || chartIds.isEmpty()) {
+            return Result.error("Chart IDs cannot be empty");
+        }
+
+        if (chartIds.size() > 50) {
+            return Result.error("Maximum 50 charts per batch request");
+        }
+
+        Map<Long, Map<String, Object>> resultMap = chartService.getBatchChartData(chartIds);
+        return Result.success(resultMap);
     }
 }

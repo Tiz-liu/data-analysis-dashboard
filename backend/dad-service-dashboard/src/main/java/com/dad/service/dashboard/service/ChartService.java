@@ -17,6 +17,11 @@ public interface ChartService extends IService<Chart> {
     Map<String, Object> getChartData(Long chartId);
 
     /**
+     * Batch get chart data
+     */
+    Map<Long, Map<String, Object>> getBatchChartData(List<Long> chartIds);
+
+    /**
      * Get charts by dashboard ID
      */
     List<Chart> getChartsByDashboardId(Long dashboardId);

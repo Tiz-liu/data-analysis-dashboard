@@ -39,6 +39,23 @@ spring:
       test-while-idle: true
       test-on-borrow: false
       test-on-return: false
+  # Redis Cache Configuration
+  redis:
+    host: localhost
+    port: 6379
+    password: redis123
+    database: 0
+    timeout: 3000
+    lettuce:
+      pool:
+        max-active: 20
+        max-idle: 10
+        min-idle: 5
+        max-wait: -1ms
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000  # 5 minutes default TTL
 
 # MyBatis-Plus Configuration
 mybatis-plus:
