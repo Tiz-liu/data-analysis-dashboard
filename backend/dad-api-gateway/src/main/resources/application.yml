@@ -10,6 +10,7 @@ spring:
         server-addr: localhost:8848
         namespace: public
         group: DEFAULT_GROUP
+        ip: 127.0.0.1
       config:
         server-addr: localhost:8848
         namespace: public
@@ -21,7 +22,15 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
-        # Dashboard Service
+        # Dashboard Service (API路由)
+        - id: dad-service-dashboard-api
+          uri: lb://dad-service-dashboard
+          predicates:
+            - Path=/api/dashboards/**, /api/charts/**
+          filters:
+            - StripPrefix=0
+
+        # Dashboard Service (简短路由)
         - id: dad-service-dashboard
           uri: lb://dad-service-dashboard
           predicates:
@@ -29,7 +38,15 @@ spring:
           filters:
             - StripPrefix=1
 
-        # Data Service
+        # Data Service (API路由)
+        - id: dad-service-data-api
+          uri: lb://dad-service-data
+          predicates:
+            - Path=/api/data/**, /api/datasources/**
+          filters:
+            - StripPrefix=0
+
+        # Data Service (简短路由)
         - id: dad-service-data
           uri: lb://dad-service-data
           predicates:
@@ -61,7 +78,15 @@ spring:
           filters:
             - StripPrefix=1
 
-        # User Service
+        # User Service (API路由)
+        - id: dad-service-user-api
+          uri: lb://dad-service-user
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - StripPrefix=0
+
+        # User Service (简短路由)
         - id: dad-service-user
           uri: lb://dad-service-user
           predicates:

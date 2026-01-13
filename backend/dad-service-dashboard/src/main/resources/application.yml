@@ -8,11 +8,15 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
   cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
     nacos:
       discovery:
         server-addr: localhost:8848
         namespace: public
         group: DEFAULT_GROUP
+        ip: 127.0.0.1
       config:
         server-addr: localhost:8848
         namespace: public

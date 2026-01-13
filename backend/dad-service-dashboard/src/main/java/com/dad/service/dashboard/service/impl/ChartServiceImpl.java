@@ -1,5 +1,6 @@
 package com.dad.service.dashboard.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dad.common.result.Result;
 import com.dad.common.util.JsonUtil;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,5 +50,12 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart> implements
         } else {
             throw new RuntimeException("Failed to get chart data");
         }
+    }
+
+    @Override
+    public List<Chart> getChartsByDashboardId(Long dashboardId) {
+        LambdaQueryWrapper<Chart> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Chart::getDashboardId, dashboardId);
+        return list(queryWrapper);
     }
 }

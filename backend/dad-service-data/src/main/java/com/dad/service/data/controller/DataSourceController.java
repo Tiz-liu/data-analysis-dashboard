@@ -107,11 +107,12 @@ public class DataSourceController {
     /**
      * Preview data
      */
-    @GetMapping("/{id}/preview")
+    @PostMapping("/{id}/preview")
     @ApiOperation("Preview data from data source")
     public Result<Map<String, Object>> previewData(
         @PathVariable Long id,
-        @RequestParam String sql) {
+        @RequestBody Map<String, String> request) {
+        String sql = request.get("sql");
         Map<String, Object> result = dataSourceService.previewData(id, sql);
         return Result.success(result);
     }

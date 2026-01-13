@@ -1,7 +1,9 @@
 package com.dad.service.dashboard.controller;
 
 import com.dad.common.result.Result;
+import com.dad.service.dashboard.entity.Chart;
 import com.dad.service.dashboard.entity.Dashboard;
+import com.dad.service.dashboard.service.ChartService;
 import com.dad.service.dashboard.service.DashboardService;
 import com.dad.service.dashboard.vo.DashboardVO;
 import io.swagger.annotations.Api;
@@ -23,6 +25,9 @@ public class DashboardController {
 
     @Autowired
     private DashboardService dashboardService;
+
+    @Autowired
+    private ChartService chartService;
 
     /**
      * Get dashboard list
@@ -50,6 +55,16 @@ public class DashboardController {
     }
 
     /**
+     * Get charts by dashboard ID
+     */
+    @GetMapping("/{id}/charts")
+    @ApiOperation("Get charts by dashboard ID")
+    public Result<List<Chart>> getCharts(@PathVariable Long id) {
+        List<Chart> charts = chartService.getChartsByDashboardId(id);
+        return Result.success(charts);
+    }
+
+    /**
      * Create dashboard
      */
     @PostMapping
@@ -57,6 +72,11 @@ public class DashboardController {
     public Result<Dashboard> create(@RequestBody Dashboard dashboard) {
         dashboard.setGuid(java.util.UUID.randomUUID().toString().replace("-", ""));
         dashboard.setStatus("DRAFT");
+        // TODO: Get current user ID from security context
+        // For now, use default user ID = 1
+        if (dashboard.getOwnerId() == null) {
+            dashboard.setOwnerId(1L);
+        }
         boolean success = dashboardService.save(dashboard);
         if (success) {
             return Result.success("Dashboard created successfully", dashboard);
@@ -85,7 +105,7 @@ public class DashboardController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("Delete dashboard")
-    public Result<Void> delete(@PathVariable Long id) {
+    public Result<String> delete(@PathVariable Long id) {
         boolean success = dashboardService.removeById(id);
         if (success) {
             return Result.success("Dashboard deleted successfully");
@@ -99,7 +119,7 @@ public class DashboardController {
      */
     @PostMapping("/{id}/publish")
     @ApiOperation("Publish dashboard")
-    public Result<Void> publish(@PathVariable Long id) {
+    public Result<String> publish(@PathVariable Long id) {
         dashboardService.publish(id);
         return Result.success("Dashboard published successfully");
     }

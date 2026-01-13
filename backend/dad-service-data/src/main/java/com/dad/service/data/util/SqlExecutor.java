@@ -151,14 +151,24 @@ public class SqlExecutor {
      */
     private String addPagination(String sql, Integer pageNum, Integer pageSize) {
         int offset = (pageNum - 1) * pageSize;
-        return sql + " LIMIT " + offset + ", " + pageSize;
+        // 去掉末尾的分号和空格
+        String cleanSql = sql.trim();
+        if (cleanSql.endsWith(";")) {
+            cleanSql = cleanSql.substring(0, cleanSql.length() - 1).trim();
+        }
+        return cleanSql + " LIMIT " + offset + ", " + pageSize;
     }
 
     /**
      * Get total count of query
      */
     private int getTotalCount(Connection conn, String sql) throws SQLException {
-        String countSql = "SELECT COUNT(*) FROM (" + sql + ") AS count_table";
+        // 去掉末尾的分号和空格
+        String cleanSql = sql.trim();
+        if (cleanSql.endsWith(";")) {
+            cleanSql = cleanSql.substring(0, cleanSql.length() - 1).trim();
+        }
+        String countSql = "SELECT COUNT(*) FROM (" + cleanSql + ") AS count_table";
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(countSql)) {
             if (rs.next()) {
                 return rs.getInt(1);

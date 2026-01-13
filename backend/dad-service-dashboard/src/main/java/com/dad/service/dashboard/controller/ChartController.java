@@ -43,6 +43,21 @@ public class ChartController {
     @ApiOperation("Create chart")
     public Result<Chart> create(@RequestBody Chart chart) {
         chart.setGuid(java.util.UUID.randomUUID().toString().replace("-", ""));
+
+        // 初始化默认配置字段
+        if (chart.getQueryConfig() == null || chart.getQueryConfig().trim().isEmpty()) {
+            chart.setQueryConfig("{\"sql\":\"\"}");
+        }
+        if (chart.getChartConfig() == null || chart.getChartConfig().trim().isEmpty()) {
+            chart.setChartConfig("{\"dimensions\":[],\"measures\":[]}");
+        }
+        if (chart.getStyleConfig() == null || chart.getStyleConfig().trim().isEmpty()) {
+            chart.setStyleConfig("{}");
+        }
+        if (chart.getInteractionConfig() == null || chart.getInteractionConfig().trim().isEmpty()) {
+            chart.setInteractionConfig("{}");
+        }
+
         boolean success = chartService.save(chart);
         if (success) {
             return Result.success("Chart created successfully", chart);
@@ -57,6 +72,26 @@ public class ChartController {
     @PutMapping("/{id}")
     @ApiOperation("Update chart")
     public Result<Chart> update(@PathVariable Long id, @RequestBody Chart chart) {
+        // 获取数据库中的现有记录
+        Chart existingChart = chartService.getById(id);
+        if (existingChart == null) {
+            return Result.error("Chart not found");
+        }
+
+        // 保留配置字段（如果前端没有传递）
+        if (chart.getQueryConfig() == null) {
+            chart.setQueryConfig(existingChart.getQueryConfig());
+        }
+        if (chart.getChartConfig() == null) {
+            chart.setChartConfig(existingChart.getChartConfig());
+        }
+        if (chart.getStyleConfig() == null) {
+            chart.setStyleConfig(existingChart.getStyleConfig());
+        }
+        if (chart.getInteractionConfig() == null) {
+            chart.setInteractionConfig(existingChart.getInteractionConfig());
+        }
+
         chart.setId(id);
         boolean success = chartService.updateById(chart);
         if (success) {
@@ -71,7 +106,7 @@ public class ChartController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("Delete chart")
-    public Result<Void> delete(@PathVariable Long id) {
+    public Result<String> delete(@PathVariable Long id) {
         boolean success = chartService.removeById(id);
         if (success) {
             return Result.success("Chart deleted successfully");
