@@ -18,13 +18,13 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: ':id',
-        name: 'DashboardEdit',
-        component: () => import('../views/dashboard/DashboardEdit.vue')
-      },
-      {
-        path: ':id/view',
         name: 'DashboardView',
         component: () => import('../views/dashboard/DashboardView.vue')
+      },
+      {
+        path: ':id/edit',
+        name: 'DashboardEdit',
+        component: () => import('../views/dashboard/DashboardEditor.vue')
       }
     ]
   },

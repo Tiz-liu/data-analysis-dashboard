@@ -67,3 +67,13 @@ export function getChartData(id: number) {
     method: 'get'
   })
 }
+
+/**
+ * Get charts by dashboard ID
+ */
+export function getChartListByDashboard(dashboardId: number) {
+  return request({
+    url: `/dashboards/${dashboardId}/charts`,
+    method: 'get'
+  })
+}

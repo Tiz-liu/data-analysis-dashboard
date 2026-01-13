@@ -106,7 +106,7 @@ export const useTaskStore = defineStore('task', () => {
     if (task) {
       Object.assign(task, data)
     }
-    if (currentTask.value?.taskId === data.taskId) {
+    if (currentTask.value?.taskId === data.taskId && currentTask.value) {
       Object.assign(currentTask.value, data)
     }
   }

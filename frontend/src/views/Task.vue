@@ -33,8 +33,8 @@ const openImportDialog = () => {
   importDialogVisible.value = true
 }
 
-const getStatusType = (status: string) => {
-  const map: Record<string, string> = {
+const getStatusType = (status: string): 'success' | 'warning' | 'danger' | 'info' => {
+  const map: Record<string, 'success' | 'warning' | 'danger' | 'info'> = {
     SUCCESS: 'success',
     RUNNING: 'warning',
     FAILED: 'danger',
@@ -74,7 +74,7 @@ const getStatusText = (status: string) => {
       <el-table-column prop="taskId" label="任务ID" />
       <el-table-column prop="taskType" label="类型">
         <template #default="{ row }">
-          <el-tag :type="row.taskType === 'EXPORT' ? 'primary' : 'success'">
+          <el-tag :type="(row.taskType === 'EXPORT' ? 'success' : 'success')">
             {{ row.taskType === 'EXPORT' ? '导出' : '导入' }}
           </el-tag>
         </template>

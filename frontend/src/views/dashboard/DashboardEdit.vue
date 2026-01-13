@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
-
-const route = useRoute()
-const dashboardId = route.params.id as string
 
 const charts = ref([
   { id: '1', type: 'line', title: '趋势图', x: 0, y: 0, w: 6, h: 4 }

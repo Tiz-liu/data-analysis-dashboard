@@ -30,7 +30,7 @@ request.interceptors.response.use(
 
     // Check if code indicates success
     if (res.code === 200) {
-      return res
+      return res.data  // 解包，直接返回 data 字段
     } else {
       ElMessage.error(res.message || 'Request failed')
       return Promise.reject(new Error(res.message || 'Request failed'))
