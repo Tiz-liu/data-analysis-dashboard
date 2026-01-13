@@ -12,6 +12,7 @@ interface Props {
   chartId: number
   chartType: string
   height?: string
+  initialData?: any  // 预加载的数据
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -34,6 +35,14 @@ const initChart = () => {
 const loadChartData = async () => {
   if (!chartInstance || !props.chartId) return
 
+  // 优先使用预加载数据
+  if (props.initialData && props.initialData.rows) {
+    const option = generateChartOption(props.initialData)
+    chartInstance.setOption(option)
+    return
+  }
+
+  // 没有预加载数据时才发起请求
   loading.value = true
   try {
     const response = await getChartData(props.chartId) as any
@@ -48,6 +57,14 @@ const loadChartData = async () => {
     loading.value = false
   }
 }
+
+// 监听预加载数据变化
+watch(() => props.initialData, (newData) => {
+  if (newData && chartInstance && newData.rows) {
+    const option = generateChartOption(newData)
+    chartInstance.setOption(option)
+  }
+}, { immediate: true })
 
 // 生成 ECharts 配置
 const generateChartOption = (data: any): EChartsOption => {

@@ -12,6 +12,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     ChartContainer: typeof import('./../components/charts/ChartContainer.vue')['default']
+    ChartSkeleton: typeof import('./../components/charts/ChartSkeleton.vue')['default']
     EChartsRenderer: typeof import('./../components/charts/EChartsRenderer.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElButton: typeof import('element-plus/es')['ElButton']

@@ -69,6 +69,19 @@ export function getChartData(id: number) {
 }
 
 /**
+ * Batch get chart data
+ * @param chartIds Array of chart IDs
+ * @returns Map of chartId -> chartData
+ */
+export function getBatchChartData(chartIds: number[]) {
+  return request({
+    url: '/charts/batch/data',
+    method: 'post',
+    data: chartIds
+  })
+}
+
+/**
  * Get charts by dashboard ID
  */
 export function getChartListByDashboard(dashboardId: number) {
