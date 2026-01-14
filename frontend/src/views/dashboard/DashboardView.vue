@@ -8,6 +8,7 @@ import { getBatchChartData } from '@/api/chart'
 import type { Dashboard } from '@/types'
 import type { Chart } from '@/types/chart'
 import EChartsRenderer from '@/components/charts/EChartsRenderer.vue'
+import ChartSkeleton from '@/components/charts/ChartSkeleton.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -15,24 +16,25 @@ const router = useRouter()
 const dashboard = ref<Dashboard>()
 const charts = ref<Chart[]>([])
 const chartsDataMap = ref<Map<number, any>>(new Map())
+const loadingStates = ref<Map<number, boolean>>(new Map())
 const loading = ref(false)
-const dataLoading = ref(false)
 
 // 加载仪表盘详情
 const loadDashboard = async () => {
   const id = route.params.id as string
   loading.value = true
-  dataLoading.value = true
 
   try {
-    // 并行加载仪表盘详情和图表列表
+    // 1. 并行加载仪表盘详情和图表列表
     const [dashboardData, chartsData] = await Promise.all([
       dashboardApi.getDetail(id),
       dashboardApi.getCharts(id)
     ])
 
     dashboard.value = dashboardData
-    charts.value = (chartsData || []).map((chart: any) => ({
+
+    // 2. 准备图表列表
+    const chartsList = (chartsData || []).map((chart: any) => ({
       id: chart.id,
       guid: chart.guid,
       dashboardId: chart.dashboardId,
@@ -48,35 +50,40 @@ const loadDashboard = async () => {
       height: chart.position?.h || chart.height || 4
     })) as Chart[]
 
-    // 批量加载图表数据
-    if (charts.value.length > 0) {
-      await loadChartsData()
+    // 🔑 关键改进：立即设置 charts.value，显示骨架屏
+    charts.value = chartsList
+
+    // 3. 标记所有图表为"加载中"（显示骨架屏）
+    chartsList.forEach(chart => {
+      if (chart.id) {
+        loadingStates.value.set(chart.id, true)  // true = 显示骨架屏
+      }
+    })
+
+    // 4. 后台批量加载数据
+    if (chartsList.length > 0) {
+      const chartIds = chartsList
+        .map(c => c.id)
+        .filter((id): id is number => id != null)
+
+      const batchData = await getBatchChartData(chartIds) as any
+
+      // 5. 数据到达后，更新 Map 和状态
+      chartsDataMap.value = new Map(
+        Object.entries(batchData || {}).map(([key, value]) => [Number(key), value])
+      )
+
+      // 6. 逐个标记为"已完成"（显示真实图表）
+      Object.keys(batchData || {}).forEach(key => {
+        const chartId = Number(key)
+        loadingStates.value.set(chartId, false)
+      })
     }
   } catch (error) {
     ElMessage.error('加载仪表盘失败')
     console.error(error)
   } finally {
     loading.value = false
-    dataLoading.value = false
-  }
-}
-
-// 批量加载图表数据
-const loadChartsData = async () => {
-  const chartIds = charts.value
-    .map(c => c.id)
-    .filter((id): id is number => id != null)
-
-  if (chartIds.length === 0) return
-
-  try {
-    const batchData = await getBatchChartData(chartIds) as any
-    chartsDataMap.value = new Map(
-      Object.entries(batchData || {}).map(([key, value]) => [Number(key), value])
-    )
-  } catch (error) {
-    console.error('Failed to load charts data:', error)
-    ElMessage.warning('批量加载失败，部分图表可能无法显示')
   }
 }
 
@@ -116,7 +123,7 @@ onMounted(() => {
     </div>
 
     <!-- Canvas -->
-    <div class="canvas" v-loading="loading">
+    <div class="canvas">
       <!-- 图表网格 -->
       <div class="chart-grid" v-if="charts.length > 0">
         <div
@@ -128,12 +135,20 @@ onMounted(() => {
             gridRow: `span ${chart.height || 4}`
           }"
         >
-          <div class="chart-card">
+          <!-- 🔑 关键：条件渲染骨架屏或真实图表 -->
+          <div v-if="loadingStates.get(chart.id) === true">
+            <ChartSkeleton
+              :width="chart.width || 6"
+              :height="chart.height || 4"
+            />
+          </div>
+
+          <div v-else class="chart-card">
             <div class="chart-header" v-if="chart.name">
               <h3>{{ chart.name }}</h3>
               <el-tag size="small" v-if="chart.description">{{ chart.description }}</el-tag>
             </div>
-            <div class="chart-body" v-loading="dataLoading">
+            <div class="chart-body">
               <EChartsRenderer
                 v-if="chart.id"
                 :chart-id="chart.id"
@@ -148,7 +163,7 @@ onMounted(() => {
 
       <!-- 空状态 -->
       <el-empty
-        v-else
+        v-else-if="!loading"
         description="暂无图表，点击编辑按钮添加图表"
         :image-size="200"
       />
